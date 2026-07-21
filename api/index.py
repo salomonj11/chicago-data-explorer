@@ -8,12 +8,14 @@ is needed), and serves a small JSON API consumed by the dashboard.
 import os
 import time
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any
 
 import httpx
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 
 SOCRATA_BASE = "https://data.cityofchicago.org/resource"
 
@@ -79,6 +81,20 @@ async def soql(dataset: str, params: dict[str, str]) -> list[dict]:
 def _iso_days_ago(days: int) -> str:
     dt = datetime.now(timezone.utc) - timedelta(days=days)
     return dt.strftime("%Y-%m-%dT00:00:00")
+
+
+@app.get("/", include_in_schema=False)
+async def dashboard() -> HTMLResponse:
+    """Serve the dashboard page from the function itself.
+
+    Serving the HTML from FastAPI (rather than relying on platform
+    static-file routing) keeps the deployment to a single, predictable
+    entry point.
+    """
+    page = Path(__file__).parent / "dashboard.html"
+    if not page.exists():
+        raise HTTPException(500, "dashboard.html is missing from the deployment bundle")
+    return HTMLResponse(page.read_text(encoding="utf-8"))
 
 
 @app.get("/api/health")

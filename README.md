@@ -32,10 +32,9 @@ All three panels query real datasets (`ijzp-q8t2`, `4ijn-s7e5`, `v6vf-nfxy`) liv
 
 ```
 api/
-└── index.py       # FastAPI app: /api/health, /api/crimes, /api/food-inspections, /api/requests-311
-public/
-└── index.html     # Dashboard (Chart.js, fetches the API)
-vercel.json        # Routes /api/* to the Python function
+├── index.py       # FastAPI app: dashboard at /, plus /api/health, /api/crimes, /api/food-inspections, /api/requests-311
+└── dashboard.html # Dashboard page (Chart.js), served by the function itself
+vercel.json        # Routes everything to the Python function
 requirements.txt
 ```
 
@@ -49,7 +48,7 @@ pip install -r requirements.txt uvicorn
 uvicorn api.index:app --reload
 ```
 
-Then open `public/index.html` in a browser — or visit `http://127.0.0.1:8000/api/crimes?months=6` to hit the API directly.
+Then open `http://127.0.0.1:8000/` for the dashboard — or `http://127.0.0.1:8000/api/crimes?months=6` to hit the API directly.
 
 ## Deploy (Vercel)
 
